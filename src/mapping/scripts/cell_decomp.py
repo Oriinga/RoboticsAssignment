@@ -1,6 +1,5 @@
 from matplotlib import image
 from matplotlib import pyplot as plt
-import numpy as np
 
 class node():
     def __init__(self,row,col,parent,cost):
@@ -130,24 +129,4 @@ def AStar(start,goal,dMap):
     for i in path:
         map[i.row][i.col]=0.5
 
-    return path,map
-    
-decomposedMap = segment_image_into_grid("map1.png", 7)
-path,newMap = AStar([293,350],[188,147],decomposedMap)
-
-#for i in path:
-    #print(i.toString())
-
-print(decomposedMap.shape)
-
-plt.figure(figsize=(10, 5))
-
-plt.subplot(1, 2, 1)
-plt.title("Original Map")
-plt.imshow(decomposedMap)
-
-plt.subplot(1, 2, 2)
-plt.title("Path")
-plt.imshow(newMap)
-
-plt.show()
+    return path.reverse(),map
