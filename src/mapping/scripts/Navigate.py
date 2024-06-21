@@ -50,13 +50,10 @@ def moveToPost(post):
             vel.angular.y = 0
             vel.angular.z = 0
             move_pub.publish(vel)
-            break
 
         #DO PID to move towards post
+        #USE worldPos for goal in world coordinates
 
-
-        
-    
 
 def Navigate(target):
     turtle_data = get_model_state("mobile_base")
