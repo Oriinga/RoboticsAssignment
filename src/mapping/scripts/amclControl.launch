@@ -1,0 +1,47 @@
+<launch>
+
+  <arg name="map_file" default="$(find mapping)/maps/map1.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+
+  <!-- Arguments -->
+  <arg name="scan_topic"     default="scan"/>
+  <arg name="initial_pose_x" default="0.0"/>
+  <arg name="initial_pose_y" default="0.0"/>
+  <arg name="initial_pose_a" default="0.0"/>
+
+  <!-- AMCL -->
+  <node pkg="amcl" type="amcl" name="amcl"/>
+
+  <include file ="$(find turtlebot_navigation)/launch/includes/velocity_smoother.launch.xml"/>
+  <include file ="$(find turtlebot_navigation)/launch/includes/safety_controller.launch.xml"/>
+
+  <arg name="odom_frame_id" default="odom"/>
+  <arg name="base_frame_id" default="base_footprint"/>
+  <arg name="global_frame_id" default="map"/>
+  <arg name="odom_topic" default="odom"/>
+  <arg name="laser_topic" default="scan"/>
+
+  <!-- Move Base -->
+  <node name="move_base" pkg="move_base" type="move_base" output="screen">
+    <!-- Move Base Parameters -->
+    <param name="base_global_planner" value="navfn/NavfnROS"/>
+    <param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/>
+    <!-- Configuration files for the move_base node -->
+    <rosparam file="$(find mapping)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find mapping)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find mapping)/config/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find mapping)/config/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find mapping)/config/base_local_planner_params.yaml" command="load" />
+
+    <param name="global_costmap/global_frame" value="$(arg global_frame_id)"/>
+    <param name="global_costmap/robot_base_frame" value="$(arg base_frame_id)"/>
+    <param name="local_costmap/global_frame" value="$(arg odom_frame_id)"/>
+    <param name="local_costmap/robot_base_frame" value="$(arg base_frame_id)"/>
+    <param name="DWAPlannerRos/global_frame_id" value="$(arg odom_frame_id)"/>
+
+    <remap from="cmd_vel" to="navigation_velocity_smoother/raw_cmd_vel"/>
+    <remap from="odom" to="$(arg odom_topic)"/>
+    <remap from="scan" to="$(arg laser_topic)"/>
+  </node>
+
+</launch>

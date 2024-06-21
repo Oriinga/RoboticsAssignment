@@ -1,0 +1,8 @@
+prefix=/home/xayverse/ros_home/robot_assignment_ws/install
+
+Name: mapping
+Description: Description of mapping
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
