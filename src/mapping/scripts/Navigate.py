@@ -31,7 +31,7 @@ def worldToMap(x):
     return [18.6*x[0]+360,-19.5*x[1]+280]
 
 def mapToWorld(x):
-    return [(x[0]-360)/18.6,(x[1]-280)/-19.5]
+    return [(x[1]-360)/18.6,(x[0]-280)/-19.5]
 
 def moveToPost(post):
     while not rospy.is_shutdown():
@@ -43,7 +43,7 @@ def moveToPost(post):
         pos= getPosition(turtle_data)
         angle = getOrientation(turtle_data)
 
-        if(distance(pos,mapToWorld(post)<0.05)): #check if bot is close enough to post
+        if(distance(pos,worldPos<0.05)): #check if bot is close enough to post
             vel.linear.x=0
             vel.linear.y=0
             vel.angular.x = 0
@@ -63,7 +63,7 @@ def Navigate(target):
     path,newMap = AStar(worldToMap(pos).reverse(),worldToMap(target).reverse(),decomposedMap)
 
     for step in path:
-        moveToPost(step.reverse())
+        moveToPost(step)
     
 
 #plt.title("Path")
