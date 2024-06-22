@@ -33,9 +33,21 @@ def worldToMap(x):
 def mapToWorld(x):
     return [(x[1]-360)/18.6,(x[0]-280)/-19.5]
 
+def angularVelocity(pos, theta, target,proportion=4):
+    steer = math.atan2(target[1] - pos.y, target[0] - pos.x)
+    return (proportion * (steer - theta))
+
+def linearVelocity(pos,target,proportion=3):
+    return proportion*math.sqrt((pos.x-target[0])**2+(pos.y-target[1])**2)
+
 def moveToPost(post):
     while not rospy.is_shutdown():
         vel = Twist()
+        vel.angular.x = 0
+        vel.angular.y = 0
+        vel.linear.x=0
+        vel.linear.y=0    
+        vel.angular.z = 0
         worldPos=mapToWorld(post)
         turtle_data = get_model_state("mobile_base")
         move_pub = rospy.Publisher('/cmd_vel',Twist,queue_size=10)
@@ -43,17 +55,21 @@ def moveToPost(post):
         pos= getPosition(turtle_data)
         angle = getOrientation(turtle_data)
 
-        if(distance(pos,worldPos<0.05)): #check if bot is close enough to post
-            vel.linear.x=0
-            vel.linear.y=0
-            vel.angular.x = 0
-            vel.angular.y = 0
-            vel.angular.z = 0
+        if(distance(pos,worldPos<0.05)): #check if bot is close enough to post     
             move_pub.publish(vel)
+            break
 
         #DO PID to move towards post
         #USE worldPos for goal in world coordinates
 
+        steer = math.atan2(target[1] - pos.y, target[0] - pos.x)
+        if(steer-angle>0.1):
+            vel.angular.z = angularVelocity(pos,angle,worldPos)
+            move_pub.publish(vel)
+            continue
+        
+        vel.linear.x=linearVelocity(pos,worldPos)
+        move_pub.publish(vel)
 
 def Navigate(target):
     turtle_data = get_model_state("mobile_base")
@@ -61,6 +77,8 @@ def Navigate(target):
 
     decomposedMap = segment_image_into_grid("map1.png", 7)
     path,newMap = AStar(worldToMap(pos).reverse(),worldToMap(target).reverse(),decomposedMap)
+
+    print("Path found")
 
     for step in path:
         moveToPost(step)
