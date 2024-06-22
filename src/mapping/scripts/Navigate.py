@@ -60,10 +60,10 @@ def Navigate(target):
     pos= getPosition(turtle_data)
 
     decomposedMap = segment_image_into_grid("map1.png", 7)
-    path,newMap = AStar(worldToMap(pos),worldToMap(target),decomposedMap)
+    path,newMap = AStar(worldToMap(pos).reverse(),worldToMap(target).reverse(),decomposedMap)
 
     for step in path:
-        moveToPost(step)
+        moveToPost(step.reverse())
     
 
 #plt.title("Path")
